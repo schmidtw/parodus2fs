@@ -60,13 +60,13 @@ in beautiful JSON like follows.  It, like all of the responses are limited by
 the `max-bytes-to-transfer` configuration value.  This helps prevent mistakes
 where you could ask for a file that is 10GB and not realize it.
 
-### Possible WRP (CRUD) Status Codes
+#### Possible WRP (CRUD) Status Codes
 * `200` - Success
 * `403` - You don't have permissions on the local filesystem to do this
 * `404` - The `{directory path}` you specified either doesn't exist or isn't a directory
 * `500` - Unable to allocate the needed memory
 
-### Successful Response Paylod (JSON)
+#### Successful Response Paylod (JSON)
 
 Here is the result I got from running the request: `/fs/ls/` on my laptop:
 
@@ -105,14 +105,14 @@ This enpoint gets exactly the entire file or nothing.  If the file you ask for
 is too big to fit in a buffer governed by `max-bytes-to-transfer` you'll get
 nothing back.
 
-### Possible WRP (CRUD) Status Codes
-* 200 Success
-* 403 You don't have permissions on the local filesystem to do this
-* 404 The `{file path}` you specified either doesn't exist or isn't a regular file
-* 413 The file is too big
-* 500 Unable to allocate the needed memory
+#### Possible WRP (CRUD) Status Codes
+* `200` - Success
+* `403` - You don't have permissions on the local filesystem to do this
+* `404` - The `{file path}` you specified either doesn't exist or isn't a regular file
+* `413` - The file is too big
+* `500` - Unable to allocate the needed memory
 
-### Successful Response Paylod (binary/octet-stream)
+#### Successful Response Paylod (binary/octet-stream)
 
 The payload is the data exactly as it is on the filesystem.
 
@@ -122,13 +122,13 @@ This endpoint lets you get the **first** `max-bytes-to-transfer` of a file.  It 
 be the entire file or just a part.  It's very similar to the program `head` except
 today you don't have control of it.
 
-### Possible WRP (CRUD) Status Codes
-* 200 Success
-* 403 You don't have permissions on the local filesystem to do this
-* 404 The `{file path}` you specified either doesn't exist or isn't a regular file
-* 500 Unable to allocate the needed memory
+#### Possible WRP (CRUD) Status Codes
+* `200` - Success
+* `403` - You don't have permissions on the local filesystem to do this
+* `404` - The `{file path}` you specified either doesn't exist or isn't a regular file
+* `500` - Unable to allocate the needed memory
 
-### Successful Response Paylod (binary/octet-stream)
+#### Successful Response Paylod (binary/octet-stream)
 
 The payload is the data exactly as it is on the filesystem, though it may be
 truncated.
@@ -139,13 +139,13 @@ This endpoint lets you get the **last** `max-bytes-to-transfer` of a file.  It c
 be the entire file or just a part.  It's very similar to the program `tail` except
 today you don't have control of it.
 
-### Possible WRP (CRUD) Status Codes
-* 200 Success
-* 403 You don't have permissions on the local filesystem to do this
-* 404 The `{file path}` you specified either doesn't exist or isn't a regular file
-* 500 Unable to allocate the needed memory
+#### Possible WRP (CRUD) Status Codes
+* `200` - Success
+* `403` - You don't have permissions on the local filesystem to do this
+* `404` - The `{file path}` you specified either doesn't exist or isn't a regular file
+* `500` - Unable to allocate the needed memory
 
-### Successful Response Paylod (binary/octet-stream)
+#### Successful Response Paylod (binary/octet-stream)
 
 The payload is the data exactly as it is on the filesystem, though it may be
 truncated.
