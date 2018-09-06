@@ -1,4 +1,14 @@
 # parodus2fs
+
+
+[![Build Status](https://travis-ci.org/schmidtw/parodus2fs.svg?branch=master)](https://travis-ci.org/schmidtw/parodus2fs)
+[![codecov.io](http://codecov.io/github/schmidtw/parodus2fs/coverage.svg?branch=master)](http://codecov.io/github/schmidtw/parodus2fs?branch=master)
+[![Coverity](https://img.shields.io/coverity/scan/16677.svg)](https://scan.coverity.com/projects/parodus2fs)
+[![Apache V2 License](http://img.shields.io/badge/license-Apache%20V2-blue.svg)](https://github.com/schmidtw/parodus2fs/blob/master/LICENSE)
+[![GitHub release](https://img.shields.io/github/release/schmidtw/parodus2fs.svg)](CHANGELOG.md)
+
+
+
 A simple adapter that lets you access files via Xmidt.
 
 # Building and Testing Instructions
