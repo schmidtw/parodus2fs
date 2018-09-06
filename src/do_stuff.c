@@ -51,6 +51,12 @@ typedef enum {
 /*                             Function Prototypes                            */
 /*----------------------------------------------------------------------------*/
 static void __process_msg( libpd_instance_t parodus, cfg_t *cfg, wrp_msg_t *in );
+static void __process_retrieve( cfg_t *cfg, wrp_msg_t *in,
+                                struct wrp_crud_msg *out,
+                                const char *endpoint );
+static void __process_delete( cfg_t *cfg, wrp_msg_t *in,
+                              struct wrp_crud_msg *out,
+                              const char *endpoint );
 static void __handle_full_tree( cfg_t *cfg, struct wrp_crud_msg *r );
 static void __read_file( cfg_t *cfg, struct wrp_crud_msg *r,
                          const char *fname, do_stuff_mode_t mode );
@@ -118,11 +124,6 @@ static void __process_msg( libpd_instance_t parodus, cfg_t *cfg, wrp_msg_t *in )
         return;
     }
 
-    /* Only support getting things for now. */
-    if( WRP_MSG_TYPE__RETREIVE != in->msg_type ) {
-        return;
-    }
-
     /* Ensure everything is 0/NULL. */
     memset( &resp, 0, sizeof(wrp_msg_t) );
 
@@ -138,46 +139,22 @@ static void __process_msg( libpd_instance_t parodus, cfg_t *cfg, wrp_msg_t *in )
 
     endpoint = wrp_get_msg_element( WRP_ID_ELEMENT__APPLICATION, in, DEST );
 
-    if( NULL == endpoint ) {
-        __handle_full_tree( cfg, crud );
+    switch( in->msg_type ) {
+        case WRP_MSG_TYPE__CREATE:
+            // TODO: __process_create( cfg, in );
+            break;
+        case WRP_MSG_TYPE__RETREIVE:
+            __process_retrieve( cfg, in, crud, endpoint );
+            break;
+        case WRP_MSG_TYPE__UPDATE:
+            // TODO: __process_update( cfg, in );
+            break;
+        case WRP_MSG_TYPE__DELETE:
+            __process_delete( cfg, in, crud, endpoint );
+            break;
 
-        d_info( "Request: CONFIG, Status: %d, Payload Size: %d\n",
-                crud->status, crud->payload_size );
-    } else if( 0 == strncmp("full/", endpoint, (sizeof "full/"-1)) ) {
-        /* Only return a full file (if it fits). */
-        char *abs_filename = &endpoint[(sizeof "full" - 1)];
-
-        __read_file( cfg, crud, abs_filename, SEND_ALL_ONLY );
-
-        d_info( "Request: FULL, Status: %d, Payload Size: %d, File: %s\n",
-                crud->status, crud->payload_size, abs_filename );
-    } else if( 0 == strncmp("head/", endpoint, (sizeof "head/"-1)) ) {
-        /* Return the head of the file. */
-        char *abs_filename = &endpoint[(sizeof "head" - 1)];
-
-        __read_file( cfg, crud, abs_filename, SEND_FROM_HEAD );
-
-        d_info( "Request: HEAD, Status: %d, Payload Size: %d, File: %s\n",
-                crud->status, crud->payload_size, abs_filename );
-    } else if( 0 == strncmp("tail/", endpoint, (sizeof "tail/"-1)) ) {
-        /* Return the tail of the file. */
-        char *abs_filename = &endpoint[(sizeof "tail" - 1)];
-
-        __read_file( cfg, crud, abs_filename, SEND_FROM_TAIL );
-
-        d_info( "Request: TAIL, Status: %d, Payload Size: %d, File: %s\n",
-                crud->status, crud->payload_size, abs_filename );
-    } else if( 0 == strncmp("ls/", endpoint, (sizeof "ls/"-1)) ) {
-        /* Return the directory listing for the endpoint specified. */
-        char *abs_dirname = &endpoint[(sizeof "ls" - 1)];
-
-        __read_dir( cfg, crud, abs_dirname );
-
-        d_info( "Request: LS, Status: %d, Payload Size: %d, Dir: %s\n",
-                crud->status, crud->payload_size, abs_dirname );
-    } else {
-        d_info( "Request: Unknown, Status: %d, Dest: %s\n",
-                crud->status, in->u.crud.dest );
+        default:
+            break;
     }
 
     libparodus_send( parodus, &resp );
@@ -186,6 +163,113 @@ static void __process_msg( libpd_instance_t parodus, cfg_t *cfg, wrp_msg_t *in )
      * constant, so don't free it. */
     if( NULL != crud->payload ) {
         free( crud->payload );
+    }
+}
+
+/**
+ *  This function makes sure it knows the request message type & sets up
+ *  a default response of 400 to default to a "I don't know" response.
+ *
+ *  @param cfg      the configuration to apply
+ *  @param in       the WRP message we got from Parodus to process
+ *  @param out      the WRP message we will send
+ *  @param endpoint the endpoint data string
+ */
+static void __process_retrieve( cfg_t *cfg, wrp_msg_t *in,
+                                struct wrp_crud_msg *out,
+                                const char *endpoint )
+{
+    if( NULL == endpoint ) {
+        __handle_full_tree( cfg, out );
+
+        d_info( "Request: Retrieve - CONFIG, Status: %d, Payload Size: %d\n",
+                out->status, out->payload_size );
+    } else if( 0 == strncmp("full/", endpoint, (sizeof "full/"-1)) ) {
+        /* Only return a full file (if it fits). */
+        const char *abs_filename = &endpoint[(sizeof "full" - 1)];
+
+        __read_file( cfg, out, abs_filename, SEND_ALL_ONLY );
+
+        d_info( "Request: Retrieve - FULL, Status: %d, Payload Size: %d, File: %s\n",
+                out->status, out->payload_size, abs_filename );
+    } else if( 0 == strncmp("head/", endpoint, (sizeof "head/"-1)) ) {
+        /* Return the head of the file. */
+        const char *abs_filename = &endpoint[(sizeof "head" - 1)];
+
+        __read_file( cfg, out, abs_filename, SEND_FROM_HEAD );
+
+        d_info( "Request: Retrieve - HEAD, Status: %d, Payload Size: %d, File: %s\n",
+                out->status, out->payload_size, abs_filename );
+    } else if( 0 == strncmp("tail/", endpoint, (sizeof "tail/"-1)) ) {
+        /* Return the tail of the file. */
+        const char *abs_filename = &endpoint[(sizeof "tail" - 1)];
+
+        __read_file( cfg, out, abs_filename, SEND_FROM_TAIL );
+
+        d_info( "Request: Retrieve - TAIL, Status: %d, Payload Size: %d, File: %s\n",
+                out->status, out->payload_size, abs_filename );
+    } else if( 0 == strncmp("ls/", endpoint, (sizeof "ls/"-1)) ) {
+        /* Return the directory listing for the endpoint specified. */
+        const char *abs_dirname = &endpoint[(sizeof "ls" - 1)];
+
+        __read_dir( cfg, out, abs_dirname );
+
+        d_info( "Request: Retrieve - LS, Status: %d, Payload Size: %d, Dir: %s\n",
+                out->status, out->payload_size, abs_dirname );
+    } else {
+        d_info( "Request: Retrieve - Unknown, Status: %d, Dest: %s\n",
+                out->status, in->u.crud.dest );
+    }
+}
+
+/**
+ *  Based on the configuration parameters, this deletes a file if possible.
+ *
+ *  Possible Status Codes:
+ *      200 - Success
+ *      403 - Program user does not have permissions to read the file from fs
+ *      404 - No file found
+ *      500 - Operation failed
+ *
+ *  @param cfg      the configuration to apply
+ *  @param in       the WRP message we got from Parodus to process
+ *  @param out      the WRP message we will send
+ *  @param endpoint the endpoint data string
+ */
+static void __process_delete( cfg_t *cfg, wrp_msg_t *in,
+                              struct wrp_crud_msg *out,
+                              const char *endpoint )
+{
+    (void) cfg;
+
+    if( 0 == strncmp("full/", endpoint, (sizeof "full/"-1)) ) {
+        /* Only return a full file (if it fits). */
+        const char *fname = &endpoint[(sizeof "full" - 1)];
+        struct stat s;
+
+        if( (0 == stat(fname, &s)) && (S_ISREG(s.st_mode)) ) {
+            /* Check if we can open it... */
+            if( 0 == access(fname, R_OK) ) {
+                if( 0 == remove(fname) ) {
+                    out->status = 200;
+                } else {
+                    /* Operation failed. */
+                    out->status = 500;
+                }
+            } else {
+                /* Permissions block. */
+                out->status = 403;
+            }
+        } else {
+            /* No file. */
+            out->status = 404;
+        }
+
+        d_info( "Request: Delete - FULL, Status: %d, File: %s\n",
+                out->status, fname );
+    } else {
+        d_info( "Request: Delete - Unknown, Status: %d, Dest: %s\n",
+                out->status, in->u.crud.dest );
     }
 }
 
