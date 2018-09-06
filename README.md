@@ -16,7 +16,7 @@ make test
 The interface today is quite simple.  There are 6 endpoints that only support
 the Xmidt CRUD method (retrieve).
 
-## /fs/
+## Retrieve - /fs/
 
 This endpoint provides all the configuration values and a stripped down document
 that covers how to use the other 4 endpoints.
@@ -49,11 +49,11 @@ that covers how to use the other 4 endpoints.
 }
 ```
 
-## /fs/config
+## Retrieve - /fs/config
 
 TBD - you can get it from the `/fs/` endpoint above.
 
-## /fs/ls/{directory path}
+## Retrieve - /fs/ls/{directory path}
 
 This enpoint lets you get a simple directory listing.  The listing comes back
 in beautiful JSON like follows.  It, like all of the responses are limited by
@@ -99,7 +99,7 @@ Here is the result I got from running the request: `/fs/ls/` on my laptop:
 }
 ```
 
-## /fs/full/{file path}
+## Retrieve - /fs/full/{file path}
 
 This enpoint gets exactly the entire file or nothing.  If the file you ask for
 is too big to fit in a buffer governed by `max-bytes-to-transfer` you'll get
@@ -116,7 +116,7 @@ nothing back.
 
 The payload is the data exactly as it is on the filesystem.
 
-## /fs/head/{file path}
+## Retrieve - /fs/head/{file path}
 
 This endpoint lets you get the **first** `max-bytes-to-transfer` of a file.  It could
 be the entire file or just a part.  It's very similar to the program `head` except
@@ -133,7 +133,7 @@ today you don't have control of it.
 The payload is the data exactly as it is on the filesystem, though it may be
 truncated.
 
-## /fs/tail/{file path}
+## Retrieve - /fs/tail/{file path}
 
 This endpoint lets you get the **last** `max-bytes-to-transfer` of a file.  It could
 be the entire file or just a part.  It's very similar to the program `tail` except
@@ -149,5 +149,20 @@ today you don't have control of it.
 
 The payload is the data exactly as it is on the filesystem, though it may be
 truncated.
+
+
+## Delete - /fs/full/{file path}
+
+This enpoint deletes the entire file or nothing.
+
+#### Possible WRP (CRUD) Status Codes
+* `200` - Success
+* `403` - You don't have permissions on the local filesystem to do this
+* `404` - The `{file path}` you specified either doesn't exist or isn't a regular file
+* `500` - Unable to allocate the needed memory
+
+#### Successful Response Paylod
+
+The payload is empty.
 
 
