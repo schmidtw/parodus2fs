@@ -32,6 +32,7 @@ target_link_libraries (${PROJ_P2FS}
                        -lcimplog
                        -llibparodus
                        -lcjson
+                       -lcjson_extras
                        -lnanomsg
                        -ltrower-base64
                        -lpthread

@@ -26,7 +26,6 @@ set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fprofile-arcs -ftest-cov
 link_directories ( ${LIBRARY_DIR} )
 
 add_executable(simple simple.c)
-
 target_link_libraries (simple  gcov  cunit
                        ${CMAKE_THREAD_LIBS_INIT}
                        -lwrp-c
@@ -39,10 +38,26 @@ target_link_libraries (simple  gcov  cunit
                        -lpthread
                        -lrt 
                        )
-
 add_test(NAME Simple COMMAND ${MEMORY_CHECK} ${CMAKE_CURRENT_BINARY_DIR}/simple)
 
+add_executable(test_config ../src/config.c test_config.c)
+target_link_libraries (test_config  gcov  cunit
+                       ${CMAKE_THREAD_LIBS_INIT}
+                       -lwrp-c
+                       -lmsgpackc
+                       -lm
+                       -lcimplog
+                       -lcjson_extras
+                       -lcjson
+                       -llibparodus
+                       -lnanomsg
+                       -ltrower-base64
+                       -lpthread
+                       -lrt 
+                       )
+add_test(NAME test_config COMMAND ${MEMORY_CHECK} ${CMAKE_CURRENT_BINARY_DIR}/test_config)
+
 add_custom_target(coverage
-                  COMMAND lcov -q --capture --directory ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/simple.dir/__/src --output-file coverage.info
+                  COMMAND lcov -q --capture --directory ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/test_config.dir/__/src --output-file coverage.info
                   COMMAND genhtml coverage.info
                   WORKING_DIRECTORY ${CMAKE_BINARY_DIR})

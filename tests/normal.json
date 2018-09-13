@@ -1,0 +1,6 @@
+{
+    "max-bytes-to-transfer": 1000,
+    "read-notify": true,
+    "receive-timeout": 12000,
+    "Ignore me": "Really, ignore me."
+}

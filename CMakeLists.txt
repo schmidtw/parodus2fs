@@ -36,6 +36,7 @@ set(COMMON_LIBRARY_DIR ${INSTALL_DIR}/lib/${CMAKE_LIBRARY_ARCHITECTURE})
 #--------------------------------------------------------------------------------
 include_directories(${INCLUDE_DIR}
                     ${INCLUDE_DIR}/cjson
+                    ${INCLUDE_DIR}/cjson-extras
                     ${INCLUDE_DIR}/msgpack
                     ${INCLUDE_DIR}/wrp-c
                     ${INCLUDE_DIR}/libparodus
@@ -82,12 +83,22 @@ ExternalProject_Add(cJSON
     #PREFIX ${PREFIX_DIR}/cJSON
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/_prefix/cJSON
     GIT_REPOSITORY https://github.com/DaveGamble/cJSON.git
-    #GIT_TAG "master"
-    GIT_TAG "aafb64a1c549b7b927e339df6d35b1d5059dc235"
+    GIT_TAG "v1.7.7"
     CMAKE_ARGS += -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR}
 )
 add_library(libcJSON STATIC SHARED IMPORTED)
 add_dependencies(libcJSON cJSON)
+
+# cJSON-extras external dependency
+#-------------------------------------------------------------------------------
+ExternalProject_Add(cjson-extras
+    PREFIX ${CMAKE_CURRENT_BINARY_DIR}/_prefix/cjson-extras
+    GIT_REPOSITORY https://github.com/Comcast/cjson-extras.git
+    GIT_TAG "master"
+    CMAKE_ARGS += -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR}
+)
+add_library(libcjson-extras STATIC SHARED IMPORTED)
+add_dependencies(libcjson-extras cjson-extras)
 
 # msgpack-c external dependency
 #-------------------------------------------------------------------------------

@@ -1,0 +1,5 @@
+{
+    "-max-bytes-to-transfer": 1000,
+    "read-notify": true,
+    "Ignore me": "Really, ignore me."
+}

@@ -1,0 +1,5 @@
+{
+    "max-bytes-to-transfer": { "foo": "bar" },
+    "read-notify": { "foo": "bar" },
+    "receive-timeout": { "foo": "bar" }
+}
