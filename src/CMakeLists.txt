@@ -18,6 +18,7 @@ set(PROJ_P2FS parodus2fs)
 set(SOURCES 
     args.c
     config.c
+    handle_full_tree.c
     do_stuff.c
     sigs.c
     main.c)

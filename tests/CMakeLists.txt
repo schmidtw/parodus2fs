@@ -43,19 +43,17 @@ add_test(NAME Simple COMMAND ${MEMORY_CHECK} ${CMAKE_CURRENT_BINARY_DIR}/simple)
 add_executable(test_config ../src/config.c test_config.c)
 target_link_libraries (test_config  gcov  cunit
                        ${CMAKE_THREAD_LIBS_INIT}
-                       -lwrp-c
-                       -lmsgpackc
-                       -lm
                        -lcimplog
                        -lcjson_extras
                        -lcjson
-                       -llibparodus
-                       -lnanomsg
-                       -ltrower-base64
-                       -lpthread
-                       -lrt 
                        )
 add_test(NAME test_config COMMAND ${MEMORY_CHECK} ${CMAKE_CURRENT_BINARY_DIR}/test_config)
+
+add_executable(test_handle_full_tree ../src/handle_full_tree.c test_handle_full_tree.c)
+target_link_libraries (test_handle_full_tree  gcov  cunit
+                       ${CMAKE_THREAD_LIBS_INIT}
+                       )
+add_test(NAME test_handle_full_tree COMMAND ${MEMORY_CHECK} ${CMAKE_CURRENT_BINARY_DIR}/test_handle_full_tree)
 
 add_custom_target(coverage
                   COMMAND lcov -q --capture --directory ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/test_config.dir/__/src --output-file coverage.info

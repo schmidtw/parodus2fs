@@ -25,6 +25,7 @@
 #include <cJSON.h>
 #include <wrp-c.h>
 
+#include "handle_full_tree.h"
 #include "do_stuff.h"
 #include "logging.h"
 
@@ -57,7 +58,6 @@ static void __process_retrieve( cfg_t *cfg, wrp_msg_t *in,
 static void __process_delete( cfg_t *cfg, wrp_msg_t *in,
                               struct wrp_crud_msg *out,
                               const char *endpoint );
-static void __handle_full_tree( cfg_t *cfg, struct wrp_crud_msg *r );
 static void __read_file( cfg_t *cfg, struct wrp_crud_msg *r,
                          const char *fname, do_stuff_mode_t mode );
 static void __read_dir( cfg_t *cfg, struct wrp_crud_msg *r, const char *dname );
@@ -180,7 +180,7 @@ static void __process_retrieve( cfg_t *cfg, wrp_msg_t *in,
                                 const char *endpoint )
 {
     if( NULL == endpoint ) {
-        __handle_full_tree( cfg, out );
+        handle_full_tree( cfg, out );
 
         d_info( "Request: Retrieve - CONFIG, Status: %d, Payload Size: %d\n",
                 out->status, out->payload_size );
@@ -270,73 +270,6 @@ static void __process_delete( cfg_t *cfg, wrp_msg_t *in,
     } else {
         d_info( "Request: Delete - Unknown, Status: %d, Dest: %s\n",
                 out->status, in->u.crud.dest );
-    }
-}
-
-
-/**
- *  This sends back all the details about how to use this API.
- *
- *  Possible Status Codes:
- *      200 - Success
- *      500 - Memory allocation error
- *
- *  @param cfg   the configuration to apply
- *  @param r     the response message to populate
- */
-static void __handle_full_tree( cfg_t *cfg, struct wrp_crud_msg *r )
-{
-    static const char c[] = "{ "
-                            "\"config\": { "
-                                "\"read-notify\": %s, "
-                                "\"max-bytes-to-transfer\": %ld, "
-                                "\"receive-timeout\": %d "
-                            "}, "
-                            "\"head\": { "
-                                "\"desc\": \"Transfer up to the max-bytes-to-transfer "
-                                           "maximum starting with the head and "
-                                           "truncating the tail, if needed.  "
-                                           "A binary copy of the file is returned.\""
-                            "}, "
-                            "\"tail\": { "
-                                "\"desc\": \"Transfer up to the max-bytes-to-transfer "
-                                           "maximum truncating the head of the file "
-                                           "to preserve the tail, if needed.  "
-                                           "A binary copy of the file is returned.\""
-                            "}, "
-                            "\"full\": { "
-                                "\"desc\": \"Only transfer the file if the entire "
-                                           "file can be transfered without "
-                                           "truncation.  A binary copy of the "
-                                           "file is returned.\""
-                            "}, "
-                            "\"ls\": { "
-                                "\"desc\": \"Transfer the directory listing as a "
-                                           "JSON list in random order.  If the list "
-                                           "is truncated then the \\\"partial\\\" "
-                                           "boolean parameter (omitted unless "
-                                           "needed) shall be set to true.  "
-                                           "The list is returned with the name "
-                                           "\\\"list\\\".  "
-                                           "The max-bytes-to-transfer parameter "
-                                           "governs the truncation size.\""
-                            "} "
-                        "}";
-
-    /* Build/ship the payload. */
-    r->payload_size = snprintf( NULL, 0, c, (cfg->read_notify ? "true" : "false"),
-                                cfg->max_transfer, cfg->receive_timeout );
-    r->payload_size++;  /* For the trailing '\0'. */
-                                                                  
-    r->payload = malloc( r->payload_size );
-    if( NULL == r->payload ) {
-        r->status = 500;
-        r->payload_size = 0;
-    } else {
-        r->status = 200;
-        r->content_type = "application/json";
-        sprintf( r->payload, c, (cfg->read_notify ? "true" : "false"),
-                 cfg->max_transfer, cfg->receive_timeout );
     }
 }
 
