@@ -52,33 +52,35 @@ cfg_t* config_get( const char *file )
 
     c = (cfg_t*) malloc( sizeof(cfg_t) );
     if( NULL != c ) {
+        /* Set the defaults. */
         c->read_notify  = false;
         c->max_transfer = 10000000;
         c->receive_timeout = 10000;
-    }
 
-    if( NULL != file ) {
-        cJSON *json;
-        int err;
+        if( NULL != file ) {
+            cJSON *json;
+            int err;
 
-        json = cJSON_Parse_File( file, &err );
-        if( NULL != json ) {
-            cJSON *item;
-            item = cJSON_GetObjectItemCaseSensitive( json, "read-notify" );
-            if( cJSON_IsBool(item) ) {
-                c->read_notify = (cJSON_True == item->type) ? true : false;
+            json = cJSON_Parse_File( file, &err );
+            if( NULL != json ) {
+                cJSON *item;
+                item = cJSON_GetObjectItemCaseSensitive( json, "read-notify" );
+                if( cJSON_IsBool(item) ) {
+                    c->read_notify = (cJSON_True == item->type) ? true : false;
+                }
+                item = cJSON_GetObjectItemCaseSensitive( json, "max-bytes-to-transfer" );
+                if( cJSON_IsNumber(item) ) {
+                    c->max_transfer = item->valueint;
+                }
+                item = cJSON_GetObjectItemCaseSensitive( json, "receive-timeout" );
+                if( cJSON_IsNumber(item) ) {
+                    c->receive_timeout = item->valueint;
+                }
+                cJSON_Delete( json );
             }
-            item = cJSON_GetObjectItemCaseSensitive( json, "max-bytes-to-transfer" );
-            if( cJSON_IsNumber(item) ) {
-                c->max_transfer = item->valueint;
-            }
-            item = cJSON_GetObjectItemCaseSensitive( json, "receive-timeout" );
-            if( cJSON_IsNumber(item) ) {
-                c->receive_timeout = item->valueint;
-            }
-            cJSON_Delete( json );
         }
     }
+
     return c;
 }
 

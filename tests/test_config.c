@@ -66,11 +66,11 @@ void test_config( void )
         CU_ASSERT( tests[i].goal.max_transfer == got->max_transfer )
         CU_ASSERT( tests[i].goal.receive_timeout == got->receive_timeout )
 
-        if( NULL != got ) {
-            config_free( got );
-        }
+        config_free( got );
     }
 
+    /* Simple, silly test. */
+    config_free( NULL );
 }
 
 void add_suites( CU_pSuite *suite )
