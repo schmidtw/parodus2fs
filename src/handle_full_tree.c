@@ -85,17 +85,20 @@ void handle_full_tree( cfg_t *cfg, struct wrp_crud_msg *r )
                                            "governs the truncation size.\""
                             "} "
                         "}";
+    size_t len;
+
+    /* Default response. */
+    r->status = 500;
+    r->payload_size = 0;
 
     /* Build/ship the payload. */
-    r->payload_size = snprintf( NULL, 0, c, (cfg->read_notify ? "true" : "false"),
-                                cfg->max_transfer, cfg->receive_timeout );
-    r->payload_size++;  /* For the trailing '\0'. */
+    len = snprintf( NULL, 0, c, (cfg->read_notify ? "true" : "false"),
+                    cfg->max_transfer, cfg->receive_timeout );
+    len++;  /* For the trailing '\0'. */
                                                                   
-    r->payload = malloc( r->payload_size );
-    if( NULL == r->payload ) {
-        r->status = 500;
-        r->payload_size = 0;
-    } else {
+    r->payload = malloc( len );
+    if( NULL != r->payload ) {
+        r->payload_size = len;
         r->status = 200;
         r->content_type = "application/json";
         sprintf( r->payload, c, (cfg->read_notify ? "true" : "false"),
